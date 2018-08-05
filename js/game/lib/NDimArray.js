@@ -1,7 +1,7 @@
 
 class NDimArray {
     /**
-     * Creates a new n-dimensional array
+     * Creates a new n-dimensional array.  Each item of the array will initially be "undefined."
      * @param {Array} dimensions The dimensions of the array [x, y, z, a, ...]
      * @memberof NDimArray
      */
@@ -12,7 +12,7 @@ class NDimArray {
 	}
 
     /**
-     * Fills the array with a specific value
+     * Fills the array with a specific value.
      * @param {any} value Fill the array with this value.
      * @memberof NDimArray
      */

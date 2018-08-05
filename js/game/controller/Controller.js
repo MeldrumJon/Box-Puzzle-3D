@@ -44,8 +44,7 @@ export default class Controller {
         let command;
         if (this.selector.selected === null) {
             command = new MoveSelectorCommand(this.selector, direction);
-        }
-        else {
+        } else {
             command = new MoveBoxCommand(this.selector, direction);
         }
         this.commander.do(command);

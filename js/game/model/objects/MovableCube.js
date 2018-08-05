@@ -5,25 +5,25 @@ import Cube from './Cube.js';
  * @class Cube
  */
 export default class MovableCube extends Cube {
-	constructor(board, coords, color) {
-		super(board, coords, color);
-	}
+    constructor(board, coords, color) {
+        super(board, coords, color);
+    }
 
-	/**
-	 * 
-	 * @param {Array} directions Numbers to keep adding until the box hits
-	 */
-	move(directions) {
-		let newCoords = math.add(this.coords, directions);
+    /**
+     * 
+     * @param {Array} directions Numbers to keep adding until the box hits
+     */
+    move(directions) {
+        let newCoords = math.add(this.coords, directions);
 
-		this.board.set(this.coords, null);
-		if (!this.board.validCoords(newCoords)
-			|| this.board.occupied(newCoords)) {
-			this.board.set(this.coords, this);
-			return;
-		} else {
-			this.coords = newCoords;
-			this.move(directions);
-		}
-	}
+        this.board.set(this.coords, null);
+        if (!this.board.validCoords(newCoords) ||
+            this.board.occupied(newCoords)) {
+            this.board.set(this.coords, this);
+            return;
+        } else {
+            this.coords = newCoords;
+            this.move(directions);
+        }
+    }
 }
