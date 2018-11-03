@@ -1,5 +1,6 @@
 import NDimArray from '../lib/NDimArray.js';
 import MovableCube from './objects/MovableCube.js';
+import CubeGenerator from './CubeGenerator.js';
 
 /**
  * Creates a Board that contains moveable boxes.  Unoccupied spaces are null.
@@ -28,14 +29,22 @@ export default class Board extends NDimArray {
     }
 
     generate() {
+        let gen = new CubeGenerator({
+            immovable: 3,
+            movable: [1, 2, 3, 4, 5, 6],
+        });
+
         let dims1 = [0, 0, 0];
         let dims2 = [
             this.dims[0] - 1,
             this.dims[1] - 1,
             this.dims[2] - 1,
         ];
-        this.set(dims1, new MovableCube(this, dims1, 0));
-        this.set(dims2, new MovableCube(this, dims2, 3));
+        this.set(dims1, gen.createCube(this, dims1));
+        this.set(dims2, gen.createCube(this, dims2));
+
+
+
     }
 
     setSelector(selector) {
