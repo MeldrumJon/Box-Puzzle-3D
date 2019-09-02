@@ -23,6 +23,8 @@ export default class ThreeFacade {
 
     this.renderer = new THREE.WebGLRenderer({antialias: enAntiAliasing});
     this.renderer.setSize(elWidth, elHeight);
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.BasicShadowMap;
 
     this.scene = new THREE.Scene();
 
@@ -34,10 +36,11 @@ export default class ThreeFacade {
     this.controls = new THREE.OrbitControls(
       this.camera, this.renderer.domElement
     );
+		this.controls.noPan = true;
 
     this.element.appendChild(this.renderer.domElement);
 
-    this.ambientLight = new THREE.AmbientLight(C.AMBIENT_LIGHT_COLOR);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     this.scene.add(this.ambientLight);
   }
 
@@ -85,6 +88,8 @@ export default class ThreeFacade {
     let box = new THREE.Mesh(C.CUBE_GEO, C.CUBE_MATERIALS[color]);
     let transDist = math.divide(C.CUBE_DIMS, 2);
     box = ThreeFacade.translateObj3D(box, transDist);
+    box.castShadow = true;
+    box.receiveShadow = true;
     ThreeFacade.setCoords(box, coords);
     this.scene.add(box);
     return box;
@@ -99,9 +104,13 @@ export default class ThreeFacade {
   }
 
   addLight(coords) {
-    let directional = new THREE.DirectionalLight(
-      C.DIR_LIGHT_COLOR, C.DIR_LIGHT_OPACITY
-    );
+    // let directional = new THREE.DirectionalLight(
+    //   C.DIR_LIGHT_COLOR, C.DIR_LIGHT_OPACITY
+    // );
+    let directional = new THREE.PointLight( 0xffffff, 1, 100 );
+    directional.castShadow = true;
+    directional.shadow.camera.near = 0.1;
+    directional.shadow.camera.far = 25;
     ThreeFacade.setCoords(directional, coords);
     this.scene.add(directional);
     return directional;

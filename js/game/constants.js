@@ -27,7 +27,7 @@ export const CUBE_MATERIALS = [
     // materials are generated in the following loop.
 ];
 for (let i = 0; i < CUBE_COLORS.length; ++i) {
-    CUBE_MATERIALS[i] = new THREE.MeshLambertMaterial({
+    CUBE_MATERIALS[i] = new THREE.MeshPhongMaterial({
         color: CUBE_COLORS[i],
     });
 }
@@ -46,9 +46,9 @@ export const SELECTOR_SELECTED_MATERIALS = new THREE.LineBasicMaterial({
 });
 
 
-export const GREY_CUBE_COLOR = 0x555555;
-export const GREY_CUBE_MATERIAL = new THREE.MeshLambertMaterial({
-    color: GREY_CUBE_COLOR,
+export const IMMOVABLE_CUBE_COLOR = 0x555555;
+export const IMMOVABLE_CUBE_MATERIAL = new THREE.MeshPhongMaterial({
+    color: IMMOVABLE_CUBE_COLOR,
 });
 
 // axis
