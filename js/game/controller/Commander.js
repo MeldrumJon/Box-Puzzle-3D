@@ -18,9 +18,7 @@ export default class Commander {
             return;
         }
         this.busy = true;
-        console.log(this.commands);
         let command = this.commands.shift();
-        console.log(command);
         command.execute(
             this.work.bind(this) // callback: keep working until queue is full
         );

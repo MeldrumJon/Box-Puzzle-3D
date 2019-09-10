@@ -1,6 +1,6 @@
 import Cube from "./objects/Cube.js";
 import MovableCube from './objects/MovableCube.js'
-import { CUBE_COLORS } from "../constants";
+import { CUBE_COLORS } from "../constants.js";
 
 export default class CubeGenerator {
 	/**
@@ -44,7 +44,7 @@ export default class CubeGenerator {
 			return null;
 		}
 		else if (x < this.immovable_cutoff) {
-			return new Cube(board, coords, IMMOVABLE_COLOR);
+			return new Cube(board, coords, IMMOVABLE_CUBE_COLOR);
 		}
 		else {
 			let loopLength = Math.min(CUBE_COLORS.length, this.movable_cutoff.length);
