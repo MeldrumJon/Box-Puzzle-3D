@@ -4,7 +4,7 @@ export class ArrayND {
     constructor(d, fill=undefined) {
         this.dims = d;
         this.offs = AMath.prev_product(d);
-        let len = AMath.product(d);
+        const len = AMath.product(d);
         this.a = new Array(len);
         if (fill !== undefined) {
             this.a.fill(fill);
@@ -12,10 +12,9 @@ export class ArrayND {
     }
 
     _valid(c) {
-        if (c.length !== this.dims.length) {
-            return false;
-        }
-        for (let i = 0; i < c.length; ++i) {
+        const len = c.length;
+        if (len !== this.dims.length) { return false; }
+        for (let i = 0; i < len; ++i) {
             if (c[i] >= this.dims[i] || c[i] < 0) {
                 return false;
             }
@@ -32,18 +31,33 @@ export class ArrayND {
     }
 
     _idx(c) { 
-        return AMath.sum(AMath.hdm(c, this.offs));
+        let idx = 0;
+        for (let i = 0, len = c.length; i < len; ++i) {
+            idx += c[i]*this.offs[i];
+        }
+        return idx;
+    }
+
+    _coord(i) {
+        const len = this.dims.length;
+        let c = new Array(len);
+        c[0] = i % this.dims[0];
+        for (let j = 1; j < len; ++j) {
+            i = i - c[j-1] * this.offs[j-1];
+            c[j] = ~~(i / this.offs[j]) % this.dims[j];
+        }
+        return c;
     }
     
     get(c) {
         this._check(c);
-        let i = this._idx(c);
+        const i = this._idx(c);
         return this.a[i];
     }
 
     set(c, v) {
         this._check(c);
-        let i = this._idx(c);
+        const i = this._idx(c);
         this.a[i] = v;
     }
 }
@@ -51,7 +65,7 @@ export class ArrayND {
 export class TypedArrayND extends ArrayND {
     constructor(d, type, fill=0) {
         super(d);
-        let len = this.a.length;
+        const len = this.a.length;
         switch (type) {
             case 'Int8':
                 this.a = new Int8Array(len);
@@ -88,7 +102,7 @@ export class TypedArrayND extends ArrayND {
                 break;
         }
         if (fill) {
-            this.a.fill(fill, 0, this.a.len);
+            this.a.fill(fill, 0, len);
         }
     }
 }
@@ -111,14 +125,28 @@ export function tests() {
     a.set([1, 0, 1], 3);
     assert_eq(a.get([1, 0, 1]), 3);
 
+    // Idx <-> Coord
+    a = new ArrayND([5, 7, 13]);
+    for (let i = 0; i < 5; ++i) {
+        for (let j = 0; j < 7; ++j) {
+            for (let k = 0; k < 13; ++k) {
+                let c = [i, j, k];
+                let idx = a._idx(c);
+                let cn = a._coord(idx);
+                assert_eq(cn, c);
+            }
+        }
+    }
+
+    // Typed array
     let ta = new TypedArrayND([2, 3, 4], 'Int8');
     
     try {
-        a.get([3, 1, 1]);
+        ta.get([3, 1, 1]);
         console.assert(false, "a.get should have thrown RangeError");
     } catch {}
     try {
-        a.set([1, 1, 5], 0);
+        ta.set([1, 1, 5], 0);
         console.assert(false, "a.set should have thrown RangeError");
     } catch {}
     

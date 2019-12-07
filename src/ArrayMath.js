@@ -1,38 +1,49 @@
 export function scale(arr, s) {
-    for (let i = 0; i < arr.length; ++i) {
+    for (let i = 0, len = arr.length; i < len; ++i) {
         arr[i] *= s;
     }
     return arr;
 }
 
 export function sum(arr) {
-    return arr.reduce((a, b) => a + b, 0);
+    let sum = 0;
+    for (let i = 0, len = arr.length; i < len; ++i) {
+        sum += arr[i];
+    }
+    return sum;
 }
 
 export function product(arr) {
-    return arr.reduce((a, b) => a * b, 1);
+    let prod = 1;
+    for (let i = 0, len = arr.length; i < len; ++i) {
+        prod *= arr[i];
+    }
+    return prod;
 }
 
 export function add(arr1, arr2) {
-    let result = [...arr1];
-    for (let i = 0; i < arr1.length; ++i) {
-        result[i] += arr2[i];
+    const len = arr1.length;
+    let result = new Array(len);
+    for (let i = 0; i < len; ++i) {
+        result[i] = arr1[i]+arr2[i];
     }
     return result;
 }
 
 export function hdm(arr1, arr2) {
-    let result = [...arr1];
-    for (let i = 0; i < arr1.length; ++i) {
-        result[i] *= arr2[i];
+    const len = arr1.length;
+    let result = new Array(len);
+    for (let i = 0; i < len; ++i) {
+        result[i] = arr1[i]*arr2[i];
     }
     return result;
 }
 
 export function dot(arr1, arr2) {
-    if (arr1.length !== arr2.length) { return undefined; }
+    const len = arr1.length;
+    if (len !== arr2.length) { return undefined; }
     let result = 0;
-    for (let i = 0; i < arr1.length; ++i) {
+    for (let i = 0; i < len; ++i) {
         result += arr1[i]*arr2[i];
     }
     return result;
@@ -48,11 +59,12 @@ export function cross(arr1, arr2) {
 }
 
 export function prev_product(arr) {
-    let result = [];
-    arr.reduce(function (acc, cv) {
-        result.push(acc);
-        return acc*cv;
-    }, 1);
+    const len = arr.length;
+    let result = new Array(len);
+    result[0] = 1;
+    for (let i = 1; i < len; ++i) {
+        result[i] = result[i-1]*arr[i-1];
+    }
     return result;
 }
 
@@ -90,3 +102,4 @@ export function tests() {
     assert_eq(prev_product([1, 2, 2]), [1, 1, 2]);
     assert_eq(prev_product([2, 3, 4]), [1, 2, 6]);
 }
+
