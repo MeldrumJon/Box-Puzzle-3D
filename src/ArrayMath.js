@@ -1,8 +1,10 @@
 export function scale(arr, s) {
-    for (let i = 0, len = arr.length; i < len; ++i) {
-        arr[i] *= s;
+    const len = arr.length;
+    let result = new Array(len);
+    for (let i = 0; i < len; ++i) {
+        result[i] = arr[i]*s;
     }
-    return arr;
+    return result;
 }
 
 export function sum(arr) {
