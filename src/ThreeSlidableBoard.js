@@ -9,12 +9,50 @@ const SELECTOR_GEOMETRY = //new THREE.EdgesGeometry(
     );
 //);
 const SELECTOR_MATERIAL = new THREE.MeshBasicMaterial({
-    //color: C.SELECTOR_COLOR
     map: loader.load('textures/select.png'), // Relative to index.html
     transparent: true,
     opacity: 1,
     side: THREE.DoubleSide
 });
+
+const SIDE_SPACE = -0.01;
+const SIDE_GEOMETRY = new THREE.PlaneBufferGeometry(
+        C.CUBE_SIZE-SIDE_SPACE, C.CUBE_SIZE-SIDE_SPACE
+);
+SIDE_GEOMETRY.applyMatrix(
+        new THREE.Matrix4().makeTranslation(0, 0, -C.CUBE_SIZE/2+SIDE_SPACE)
+);
+const SIDE_MATERIAL = new THREE.MeshBasicMaterial({
+    map: loader.load('textures/side_select.png'), // Relative to index.html
+    transparent: true,
+    opacity: 1,
+    side: THREE.DoubleSide
+});
+const SIDE_X_FORWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+SIDE_X_FORWARD.rotation.y = -90*(Math.PI/180);
+const SIDE_Y_FORWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+const SIDE_Z_FORWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+SIDE_Z_FORWARD.rotation.x = -90*(Math.PI/180);
+
+const SIDE_X_BACKWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+SIDE_X_BACKWARD.rotation.y = 90*(Math.PI/180);
+const SIDE_Y_BACKWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+SIDE_Y_BACKWARD.rotation.y = Math.PI;
+const SIDE_Z_BACKWARD = new THREE.Mesh(
+        SIDE_GEOMETRY, SIDE_MATERIAL
+);
+SIDE_Z_BACKWARD.rotation.x = 90*(Math.PI/180);
+
 
 const FPS = 60;
 const ANIMATION_LEN = 0.1;
@@ -38,6 +76,34 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.el.addEventListener('mousemove', this.mmove.bind(this));
         this.el.addEventListener('mouseup', this.mup.bind(this));
         this.isDragging = false;
+
+        this.side_grp = new THREE.Group();
+
+        let sideXForward = SIDE_X_FORWARD.clone();
+        let sideYForward = SIDE_Y_FORWARD.clone();
+        let sideZForward = SIDE_Z_FORWARD.clone();
+        let sideXBackward = SIDE_X_BACKWARD.clone();
+        let sideYBackward = SIDE_Y_BACKWARD.clone();
+        let sideZBackward = SIDE_Z_BACKWARD.clone();
+
+        sideXForward.board_dir = [1, 0, 0];
+        sideYForward.board_dir = [0, 1, 0];
+        sideZForward.board_dir = [0, 0, 1];
+        sideXBackward.board_dir = [-1, 0, 0];
+        sideYBackward.board_dir = [0, -1, 0];
+        sideZBackward.board_dir = [0, 0, -1];
+
+        this.side_grp.add(sideXForward);
+        this.side_grp.add(sideYForward);
+        this.side_grp.add(sideZForward);
+        this.side_grp.add(sideXBackward);
+        this.side_grp.add(sideYBackward);
+        this.side_grp.add(sideZBackward);
+
+        this._setBoardProps(this.side_grp, [x-1, y-1, z-1]);
+        this.scene.add(this.side_grp);
+
+        this.fade_others([0, 0, 0]);
     }
 
     separate(factor) {
@@ -51,7 +117,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         let diff = position.clone().sub(obj3d.position);
 
         let iterations = 0;
-        let total_steps = ~~(diff.length() / ANIMATION_STEP);
+        let total_steps = ~~(diff.length() / (ANIMATION_STEP * this.separation));
         let step_vector = diff.divideScalar(total_steps);
         let animate = function() {
             if (iterations >= total_steps) {
@@ -156,10 +222,11 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.raycaster.setFromCamera(mouse, this.camera);
         
         let intersections = this.raycaster.intersectObjects(this.cube_grp.children);
-        let cube = intersections[0].object;
-        console.log(cube);
-        if (cube.cube_type > 0) {
-            this.move_to(cube.board_coord);
+        if (intersections[0]) {
+            let cube = intersections[0].object;
+            if (cube.cube_type > 0) {
+                this.move_to(cube.board_coord);
+            }
         }
     }
 }
