@@ -267,25 +267,19 @@ export default class ThreeBoard {
     }
 
     fade_others(coord, fade_immovable=true, opacity=0.2) {
-        const [x, y, z] = this.cubes.dims;
-        for (let i = 0; i < x; ++i) {
-            for (let j = 0; j < y; ++j) {
-                for (let k = 0; k < z; ++k) {
-                    const c = [i, j, k];
-                    let cube = this.cubes.get(c);
-                    if (!cube) { continue; }
-                    if (AMath.equal(coord, c)
-                            || (!fade_immovable && cube.cube_type === 0)) {
-                        cube.material.transparent = false;
-                        cube.material.opacity = 1;
-                    }
-                    else {
-                        cube.material.transparent = true;
-                        cube.material.opacity = opacity;
-                    }
-                }
+        let cubes = this.cubes.a;
+        for (let i = 0, len = cubes.length; i < len; ++i) {
+            if (!cubes[i]) { continue; }
+            const c = cubes[i].board_coord;
+            if (AMath.equal(c, coord)) {
+                cubes[i].position.copy(this._b2T(cubes[i].board_coord));
+                cubes[i].material.transparent = false;
+                cubes[i].material.opacity = 1;
+            }
+            else {
+                cubes[i].material.transparent = true;
+                cubes[i].material.opacity = opacity;
             }
         }
-        
     }
 }

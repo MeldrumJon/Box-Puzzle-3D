@@ -62,13 +62,6 @@ export default class ThreeSlidableBoard extends ThreeBoard {
     constructor(el, board) {
         super(el, board);
         const [x, y, z] = this.board.dims;
-        
-        this.selector = new THREE.Mesh(
-                SELECTOR_GEOMETRY, SELECTOR_MATERIAL
-        );
-        this._setBoardProps(this.selector, [x-1, y-1, z-1]);
-        this.scene.add(this.selector);
-
         this.selected = null;
 
         this.raycaster = new THREE.Raycaster();
@@ -77,7 +70,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.el.addEventListener('mouseup', this.mup.bind(this));
         this.isDragging = false;
 
-        this.side_grp = new THREE.Group();
+        this.selector_grp = new THREE.Group();
 
         let sideXForward = SIDE_X_FORWARD.clone();
         let sideYForward = SIDE_Y_FORWARD.clone();
@@ -85,30 +78,30 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         let sideXBackward = SIDE_X_BACKWARD.clone();
         let sideYBackward = SIDE_Y_BACKWARD.clone();
         let sideZBackward = SIDE_Z_BACKWARD.clone();
-
         sideXForward.board_dir = [1, 0, 0];
         sideYForward.board_dir = [0, 1, 0];
         sideZForward.board_dir = [0, 0, 1];
         sideXBackward.board_dir = [-1, 0, 0];
         sideYBackward.board_dir = [0, -1, 0];
         sideZBackward.board_dir = [0, 0, -1];
+        this.selector_grp.add(sideXForward);
+        this.selector_grp.add(sideYForward);
+        this.selector_grp.add(sideZForward);
+        this.selector_grp.add(sideXBackward);
+        this.selector_grp.add(sideYBackward);
+        this.selector_grp.add(sideZBackward);
 
-        this.side_grp.add(sideXForward);
-        this.side_grp.add(sideYForward);
-        this.side_grp.add(sideZForward);
-        this.side_grp.add(sideXBackward);
-        this.side_grp.add(sideYBackward);
-        this.side_grp.add(sideZBackward);
+        this._setBoardProps(this.selector_grp, [x-1, y-1, z-1]);
+        this.scene.add(this.selector_grp);
 
-        this._setBoardProps(this.side_grp, [x-1, y-1, z-1]);
-        this.scene.add(this.side_grp);
-
-        this.fade_others([0, 0, 0]);
+        this.separate(4);
     }
 
     separate(factor) {
         super.separate(factor);
-        this.selector.position.copy(this._b2T(this.selector.board_coord));
+        this.selector_grp.position.copy(
+                this._b2T(this.selector_grp.board_coord)
+        );
     }
 
     _animate(obj3d, position) {
