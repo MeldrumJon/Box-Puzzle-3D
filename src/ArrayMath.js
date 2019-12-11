@@ -1,3 +1,14 @@
+export function equal(arr1, arr2) {
+    const len = arr1.length;
+    if (len !== arr2.length) { return false; }
+    for (let i = 0; i < len; ++i) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export function scale(arr, s) {
     const len = arr.length;
     let result = new Array(len);
