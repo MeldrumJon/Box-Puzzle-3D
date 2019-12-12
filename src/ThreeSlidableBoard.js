@@ -22,34 +22,37 @@ const SIDE_GEOMETRY = new THREE.PlaneBufferGeometry(
 SIDE_GEOMETRY.applyMatrix(
         new THREE.Matrix4().makeTranslation(0, 0, -C.CUBE_SIZE/2+SIDE_SPACE)
 );
+// Relative to index.html
+const SIDE_HOVER_MAP = loader.load('textures/side_select.png');
+const SIDE_SELECTOR_MAP = loader.load('textures/select.png');
 const SIDE_MATERIAL = new THREE.MeshBasicMaterial({
-    map: loader.load('textures/side_select.png'), // Relative to index.html
+    map: SIDE_SELECTOR_MAP,
     transparent: true,
     opacity: 1,
     side: THREE.DoubleSide
 });
 const SIDE_X_FORWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 SIDE_X_FORWARD.rotation.y = -90*(Math.PI/180);
 const SIDE_Y_FORWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 const SIDE_Z_FORWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 SIDE_Z_FORWARD.rotation.x = -90*(Math.PI/180);
 
 const SIDE_X_BACKWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 SIDE_X_BACKWARD.rotation.y = 90*(Math.PI/180);
 const SIDE_Y_BACKWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 SIDE_Y_BACKWARD.rotation.y = Math.PI;
 const SIDE_Z_BACKWARD = new THREE.Mesh(
-        SIDE_GEOMETRY, SIDE_MATERIAL
+        SIDE_GEOMETRY, SIDE_MATERIAL.clone()
 );
 SIDE_Z_BACKWARD.rotation.x = 90*(Math.PI/180);
 
@@ -61,17 +64,12 @@ const ANIMATION_STEP = C.CUBE_SIZE/(FPS*ANIMATION_LEN);
 export default class ThreeSlidableBoard extends ThreeBoard {
     constructor(el, board) {
         super(el, board);
+
         const [x, y, z] = this.board.dims;
+
         this.selected = null;
 
-        this.raycaster = new THREE.Raycaster();
-        this.el.addEventListener('mousedown', this.mdown.bind(this));
-        this.el.addEventListener('mousemove', this.mmove.bind(this));
-        this.el.addEventListener('mouseup', this.mup.bind(this));
-        this.isDragging = false;
-
         this.selector_grp = new THREE.Group();
-
         let sideXForward = SIDE_X_FORWARD.clone();
         let sideYForward = SIDE_Y_FORWARD.clone();
         let sideZForward = SIDE_Z_FORWARD.clone();
@@ -90,11 +88,22 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.selector_grp.add(sideXBackward);
         this.selector_grp.add(sideYBackward);
         this.selector_grp.add(sideZBackward);
-
-        this._setBoardProps(this.selector_grp, [x-1, y-1, z-1]);
+        this.selector_grp.visible = false;
         this.scene.add(this.selector_grp);
 
-        this.separate(4);
+        this.hover_side = null;
+
+        this.busy = false;
+
+        this.el.addEventListener('mousedown', this.mdown.bind(this));
+        this.el.addEventListener('mousemove', this.mmove.bind(this));
+        this.el.addEventListener('mouseup', this.mup.bind(this));
+        this.mouseDown = false;
+        this.mouseStart = {
+            x: 0,
+            y: 0
+        }
+        this.mouseDrag = false;
     }
 
     separate(factor) {
@@ -126,100 +135,146 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         window.requestAnimationFrame(animate);
     }
 
+    _client2scene(x, y) {
+        let width = this.el.clientWidth;
+        let height = this.el.clientHeight;
+        return {
+            x: (x / width) * 2 - 1,
+            y: - (y / height) * 2 + 1
+        }
+    }
+
+    raycast_selector(obj_xy) {
+        let raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(obj_xy, this.camera);
+        let intersections = raycaster.intersectObjects(this.selector_grp.children);
+        if (intersections[0]) {
+            let side = intersections[0].object;
+            return side;
+        }
+        else {
+            return null;
+        }
+    }
+
+    raycast_cube(obj_xy) {
+        let raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(obj_xy, this.camera);
+        let intersections = raycaster.intersectObjects(this.cube_grp.children);
+        if (intersections[0]) {
+            let cube = intersections[0].object;
+            return cube;
+        }
+        else {
+            return null;
+        }
+    }
+
     slide(dir) {
-        if (this.busy) { return false; }
-        if (this.selected === null) { return false; } // Cannot slide nothing
-        let oc = this.selector.board_coord;
+        if (!this.selected) { return false; } // Cannot slide nothing
+        let oc = this.selected.board_coord;
         let nc = this.board.slide(oc, dir);
         if (nc === null) { return false; }
         this.cubes.set(oc, null);
         this.cubes.set(nc, this.selected);
-        this.selector.board_coord = nc;
-        this._animate(this.selector, this._b2T(nc));
-        //this.selector.position.copy(this._b2T(nc));
         this.selected.board_coord = nc;
         this._animate(this.selected, this._b2T(nc));
-        //this.selected.position.copy(this._b2T(nc));
+        this._animate(this.selector_grp, this._b2T(nc));
         return true;
     }
 
-    move(dir) {
-        if (this.busy) { return false; }
-        if (this.selected !== null) { return false; } // Cannot move with something selected
-        let c = AMath.add(this.selector.board_coord, dir);
-        if (!this.board._valid(c)) { return false; } // Cannot move to invalid coordinate
-        this.selector.board_coord = c;
-        this._animate(this.selector, this._b2T(c));
-        //this.selector.position.copy(this._b2T(c));
-        return true;
-    }
-
-    move_to(c, callback) {
-        if (this.busy) { return false; }
-        if (!this.board._valid(c)) { return false; }
-        this.selector.board_coord = c;
-        this._animate(this.selector, this._b2T(c));
-        //this.selector.position.copy(this._b2T(c));
-        return true;
-    }
-
-    smove(dir, callback) {
-        if (this.selected) {
-            this.slide(dir, callback);
-        }
-        else {
-            this.move(dir, callback);
-        }
-    }
-
-    select() {
-        if (this.busy) { return false; }
-        let cube = this.cubes.get(this.selector.board_coord);
+    select(cube) {
         if (!cube || cube.cube_type === 0) { return false; }
-        this.selector.material.color.set(C.SELECTED_COLOR);
+        this.selector_grp.position.copy(this._b2T(cube.board_coord));
+        this.selector_grp.visible = true;
         this.selected = cube;
+        this.fade_others(cube.board_coord);
         return true;
     }
 
     deselect() {
-        if (this.busy) { return false; }
+        this.selector_grp.visible = false;
         this.selected = null;
-        this.selector.material.color.set(C.SELECTOR_COLOR);
+        this.fade_none();
         return true;
     }
 
-    tselect() {
-        if (this.selected) {
-            this.deselect();
+    _selectorHover(obj_xy) {
+        if (!this.selected) { return false; }
+        let side = this.raycast_selector(obj_xy);
+        if (this.hover_side === side) { return true; }
+        if (this.hover_side) {
+            this.hover_side.material.map = SIDE_SELECTOR_MAP;
+        }
+        if (side) {
+            side.material.map = SIDE_HOVER_MAP;
+            this.hover_side = side;
+            return true;
         }
         else {
-            this.select();
+            this.hover_side = null;
+            return false;
         }
+    }
+
+    _selectorUnhover() {
+        this.hover_side.material.map = SIDE_SELECTOR_MAP;
+        this.hover_side = null;
     }
 
     mdown(e) {
-        this.isDragging = false;
+        this.mouseDown = true;
+        this.mouseDrag = false;
+        this.mouseStart = {
+            x: e.clientX,
+            y: e.clientY
+        }
     }
     mmove(e) {
-        this.isDragging = true;
-    }
-    mup(e) {
-        if (this.isDragging) { return; } // Don't select if we're just controlling scene
-        let width = this.el.clientWidth;
-        let height = this.el.clientHeight;
-        let mouse = {
-            x: (e.clientX / width) * 2 - 1,
-            y: - (e.clientY / height) * 2 + 1
+        if (this.mouseDown && !this.mouseDrag
+                && (Math.abs(this.mouseStart.x - e.clientX) > 5
+                || Math.abs(this.mouseStart.y - e.clientY) > 5)) {
+            this.mouseDrag = true;
         }
-
-        this.raycaster.setFromCamera(mouse, this.camera);
-        
-        let intersections = this.raycaster.intersectObjects(this.cube_grp.children);
-        if (intersections[0]) {
-            let cube = intersections[0].object;
-            if (cube.cube_type > 0) {
-                this.move_to(cube.board_coord);
+        // Hovering/Cursor
+        if (this.busy) { return; } // No hovering while animating
+        if (!this.mouseDown) {
+            if (this.selected) {
+                let obj_xy = this._client2scene(e.clientX, e.clientY);
+                this._selectorHover(obj_xy);
             }
         }
     }
+    mup(e) {
+        this.mouseDown = false;
+        if (this.mouseDrag) { return; } // Don't do anything with drag
+
+        // Click handling
+        if (this.busy) { return; }
+        let obj_xy = this._client2scene(e.clientX, e.clientY);
+        if (this.selected) {
+            if (this.hover_side) {
+                this.slide(this.hover_side.board_dir);
+                this._selectorUnhover();
+            }
+            else {
+                this.deselect();
+            }
+        }
+        else {
+            let cube = this.raycast_cube(obj_xy);
+            if (cube) {
+                this.select(cube);
+                // Raycaster needs selector to be visible; wait until next frame
+                let updateHover = function() {
+                    this._selectorHover(obj_xy);
+                }.bind(this);
+                window.requestAnimationFrame(updateHover);
+            }
+            else {
+                this.deselect();
+            }
+        }
+    }
+
 }

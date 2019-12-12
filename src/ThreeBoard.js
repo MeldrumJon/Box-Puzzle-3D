@@ -43,7 +43,9 @@ GRID_GEOMETRY.applyMatrix(
 const GRID_MATERIAL = new Array(3);
 for (let i = 0; i < 3; ++i) {
     GRID_MATERIAL[i] = new THREE.LineBasicMaterial({
-        color: C.GRID_COLORS[i]
+        color: C.GRID_COLORS[i],
+        transparent: true,
+        opacity: 0.5
     });
 }
 const GRID_X = new THREE.LineSegments(GRID_GEOMETRY, GRID_MATERIAL[0]);
@@ -244,7 +246,7 @@ export default class ThreeBoard {
         }
     }
 
-    fade_layers(layers, fade_immovable=true, opacity=0.2) {
+    fade_layers(layers, fade_immovable=true, opacity=0.1) {
         const [x, y, z] = this.cubes.dims;
         for (let i = 0; i < x; ++i) {
             for (let j = 0; j < y; ++j) {
@@ -266,13 +268,12 @@ export default class ThreeBoard {
         }
     }
 
-    fade_others(coord, fade_immovable=true, opacity=0.2) {
+    fade_others(coord, fade_immovable=true, opacity=0.1) {
         let cubes = this.cubes.a;
         for (let i = 0, len = cubes.length; i < len; ++i) {
             if (!cubes[i]) { continue; }
             const c = cubes[i].board_coord;
             if (AMath.equal(c, coord)) {
-                cubes[i].position.copy(this._b2T(cubes[i].board_coord));
                 cubes[i].material.transparent = false;
                 cubes[i].material.opacity = 1;
             }
@@ -281,5 +282,15 @@ export default class ThreeBoard {
                 cubes[i].material.opacity = opacity;
             }
         }
+    }
+
+    fade_none() {
+        let cubes = this.cubes.a;
+        for (let i = 0, len = cubes.length; i < len; ++i) {
+            if (!cubes[i]) { continue; }
+            cubes[i].material.transparent = false;
+            cubes[i].material.opacity = 1;
+        }
+
     }
 }
