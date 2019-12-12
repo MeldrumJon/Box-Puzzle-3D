@@ -7,7 +7,7 @@ function main() {
     const solutionEl = document.getElementById('solution');
 
     let board = new Board([3, 4, 5]);
-    board.randomize(123, [1, 1, 1, 1, 1, 1, 1, 1, 6]);
+    board.randomize(10, [10, 5, 5, 5, 5, 5, 5, 50]);
     let solution = board.solutionize(456, 4, 5);
 
     var pz = new ThreeSlidableBoard(puzzleEl, board);

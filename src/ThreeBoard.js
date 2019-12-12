@@ -3,6 +3,8 @@ import * as AMath from './ArrayMath.js';
 import { ArrayND } from './ArrayND.js';
 
 // Enclosure
+const loader = new THREE.TextureLoader();
+
 const ENCLOSURE_SIZE = 200;
 const ENCLOSURE_MATERIAL = new THREE.MeshLambertMaterial({
     color: 0xFFFFFF,
@@ -20,11 +22,12 @@ const CUBE_GEOMETRY = new THREE.BoxBufferGeometry(
         C.CUBE_SIZE-CUBE_SHRINK
 );
 const CUBE_MATERIALS = new Array(C.CUBE_COLORS.length);
-CUBE_MATERIALS[0] = new THREE.MeshPhongMaterial({ // Immovable
+CUBE_MATERIALS[0] = new THREE.MeshLambertMaterial({ // Immovable
+    //map: loader.load('textures/trak2_crete1d.png'),
     color: C.CUBE_COLORS[0],
-    emissive: 0x000000,
-    specular: 0xffffff,
-    shininess: 5
+    //emissive: 0x000000,
+    //specular: 0xffffff,
+    //shininess: 5
 });
 for (let i = 1, len = CUBE_MATERIALS.length; i < len; ++i) {
     CUBE_MATERIALS[i] = new THREE.MeshLambertMaterial({ // Movable
