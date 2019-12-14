@@ -1,20 +1,93 @@
-body { margin: 0; }
-canvas {
-    width: 100%;
+* {
+    margin: 0;
+    padding: 0;
+}
+html, body {
     height: 100%;
 }
+body {
+    font: 90%/1 Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+canvas:focus {
+    outline: none;
+}
+h2 {
+    /*font: small-caps 1.1rem/1 Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", sans-serif;*/
+    font: small-caps bold 1.2rem/1 "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+    letter-spacing: 0.02em;
+}
+h2::first-letter {
+    letter-spacing: 0.05em;
+}
 #puzzle {
-    position:fixed;
+    position:absolute;
     top:0;
-    right:50%;
     bottom: 0;
     left:0;
+    width: 50%;
+    border-right:1px solid #aaa;
+    z-index: 1;
 }
 #solution {
-    position:fixed;
+    position:absolute;
     top:0;
-    right:0;
     bottom: 0;
-    left:50%;
-    cursor: all-scroll;
+    right:0;
+    width: 50%;
+    z-index: 0;
+}
+.threeScene h2 {
+    position: absolute;
+    top:0;
+    left:0;
+    margin: 0.5rem;
+}
+#controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    min-width: 50%;
+    z-index: 2;
+    background: #fff;
+    border-right: 1px solid #aaa;
+    border-top: 1px solid #aaa;
+    padding: 0.6rem 0 0.6rem 0;
+    text-align: center;
+}
+.oversize #controls {
+    border-right: none;
+    width: 100%;
+}
+#controls h2 {
+    margin-bottom: 0.6rem;
+}
+#controls_inner {
+    display: inline-block;
+    padding: 0 0.6rem;
+}
+#controls_inner > * {
+    margin: 0 0.2rem;
+    vertical-align: middle;
+}
+#controls .sliders {
+    display: inline-block;
+    text-align: right;
+    margin-right: 1.6rem;
+}
+#controls .sliders .slider {
+    margin-bottom: 0.6em;
+}
+#controls .sliders label {
+    margin-right: 0.3rem;
+}
+#controls .sliders .slider:last-child {
+    margin: 0;
+}
+#controls input {
+    vertical-align: middle;
+}
+#controls button {
+    padding: 0.5rem;
+    background: #f2f2f2;
+    border: 1px solid #aaa;
 }

@@ -2,6 +2,9 @@
 <html>
 	<head>
 		<title>3D Sliding Puzzle</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
 		<link rel="icon" href="data:;base64,=">
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<script src="lib/three.min.js" defer></script>
@@ -9,9 +12,52 @@
 		<script type="module" src="src/main.js" defer></script>
 		<script type="module" src="src/tests.js" defer></script>
 	</head>
-	<body>
-		<div id="puzzle"></div>
-		<div id="solution"></div>
+	<body id="block_puzzle_3d">
+		<div id="puzzle" class="threeScene">
+			<h2>Puzzle</h2>
+		</div>
+		<div id="solution" class="threeScene">
+			<h2>Goal</h2>
+		</div>
+		<div id="controls">
+			<div id="controls_inner">
+				<h2>Controls</h2>
+				<div class="sliders">
+					<div class="slider">
+						<label for="separation">Separation</label>
+						<input type="range" id="separation" min="1" max="8" step="0.1" value="1">
+					</div>
+					<div class="slider">
+						<label for="fade_layers">Fade Layers</label>
+						<input type="range" id="fade_layers" min="0" max="4" step="1" value="0">
+					</div>
+				</div>
+				<button type="button" id="undo">Undo</button>
+				<button type="button" id="solve">Solve</button>
+			</div>
+		</div>
+		<script>
+			const body = document.getElementById('block_puzzle_3d');
+			const puzzle = document.getElementById('puzzle');
+			const solution = document.getElementById('solution');
+			const controls = document.getElementById('controls');
+			const cont_inner = document.getElementById('controls_inner');
+			let setControlsSize = function () {
+				if (cont_inner.clientWidth > (window.innerWidth/2+1)) {
+					body.classList.add('oversize');
+					console.log(controls.clientHeight);
+					puzzle.style.bottom = controls.clientHeight + 'px';
+					solution.style.bottom = controls.clientHeight + 'px';
+				}
+				else {
+					body.classList.remove('oversize');
+					puzzle.style.bottom = 0;
+					solution.style.bottom = 0;
+				}
+			}
+        	window.addEventListener('resize', setControlsSize, {passive: true});
+        	setControlsSize();
+		</script>
 	</body>
 </html>
 

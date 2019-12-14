@@ -144,7 +144,7 @@ export default class ThreeBoard {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(width, height);
         }.bind(this);
-        window.addEventListener('resize', resize);
+        window.addEventListener('resize', resize, {passive: true});
 
         // Enclosure
         const enclosure = new THREE.Mesh(ENCLOSURE_GEOMETRY, ENCLOSURE_MATERIAL);
@@ -225,13 +225,15 @@ export default class ThreeBoard {
         pointLight.shadow.camera.near = 60;
         pointLight.shadow.camera.far = 248;
         this.scene.add(pointLight);
+    }
 
-        // Start animation
-        let animate = function () {
+    beginRenderLoop() {
+        console.log('non-slidable');
+        let loop = function () {
             this.renderer.render(this.scene, this.camera);
-            requestAnimationFrame( animate );
+            requestAnimationFrame(loop);
         }.bind(this);
-        animate(); // Begin animation
+        requestAnimationFrame(loop); // begin
     }
 
     separate(factor) {
