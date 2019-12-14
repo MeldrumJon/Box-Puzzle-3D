@@ -95,8 +95,8 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         animate();
     }
 
-    constructor(el, board) {
-        super(el, board);
+    constructor(el) {
+        super(el);
 
         this.selector = new THREE.Group();
         let sideXForward = SIDE_X_FORWARD.clone();
@@ -159,11 +159,24 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         requestAnimationFrame(loop); // begin
     }
 
+    setBoard(board) {
+        super.setBoard(board);
+        this.moves = [];
+    }
+
+    clearBoard() {
+        super.clearBoard();
+        this.selector.visible = false;
+        this.selected_cube = null;
+    }
+
     separate(factor) {
         super.separate(factor);
-        this.selector.position.copy(
-                this._b2T(this.selector.board_coord)
-        );
+        if (this.selected_cube) {
+            this.selector.position.copy(
+                    this._b2T(this.selected_cube.board_coord)
+            );
+        }
     }
 
     slide(dir) {
@@ -176,6 +189,10 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.selected_cube.board_coord = nc;
         this._animate(this.selected_cube, this._b2T(nc));
         this._animate(this.selector, this._b2T(nc));
+        this.moves.push({
+            start: oc,
+            end: nc
+        });
         return true;
     }
 
@@ -191,7 +208,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
     deselect() {
         this.selector.visible = false;
         this.selected_cube = null;
-        this.fade_none();
+        this.fade_layers(this.fadedLayers);
         return true;
     }
 
@@ -281,13 +298,36 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         let vec2 = this._client2vec(client_x, client_y);
         this.raycaster.setFromCamera(vec2, this.camera);
         let intersections = this.raycaster.intersectObjects(this.cube_grp.children);
-        if (intersections[0]) {
-            let cube = intersections[0].object;
+        for (let i = 0, len = intersections.length; i < len; ++i) {
+            let cube = intersections[i].object;
+            if (cube.material.opacity < 1) { continue; }
             return cube;
         }
-        else {
-            return null;
+        return null;
+    }
+
+    undo() {
+        const len = this.moves.length;
+        if (len <= 0) { return; }
+        let move = this.moves.pop();
+        let cube = this.cubes.get(move.end);
+        let type = this.board.get(move.end);
+        this.cubes.set(move.end, null);
+        this.cubes.set(move.start, cube);
+        this.board.set(move.end, -1);
+        this.board.set(move.start, type);
+
+        cube.board_coord = move.start;
+        cube.position.copy(this._b2T(move.start));
+    }
+
+    restart() {
+        while (this.moves.length > 0) {
+            this.undo();
         }
     }
 
+    solve() {
+        console.log("Solve called");
+    }
 }

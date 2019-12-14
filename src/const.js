@@ -1,6 +1,8 @@
 export const TOTAL_CUBES = 7;
 export const MAX_BOARD_LEN = 64; // 64
 
+export const PROBABILITIES = [10, 5, 5, 5, 5, 5, 5, 60];
+
 export const CUBE_SIZE = 1;
 export const CUBE_COLORS = [
     0x2a2a2a,

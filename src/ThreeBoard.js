@@ -107,14 +107,12 @@ export default class ThreeBoard {
         obj3d.position.copy(this._b2T(board_coord));
     }
 
-    constructor(el, board) {
+    constructor(el) {
         this.el = el;
-        this.board = board;
+        this.board = null;
         this.separation = 1; // Separation factor between cubes
+        this.fadedLayers = 0;
 
-        const [x, y, z] = this.board.dims;
-
-        const center = this._t2T([(x-1)/2, (y-1)/2, (z-1)/2]);
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera( 75, this.el.clientWidth
@@ -134,9 +132,6 @@ export default class ThreeBoard {
         this.controls.maxDistance = 100;
         this.controls.minDistance = 4;
 
-        this.controls.target.copy(center);
-        this.camera.lookAt(center);
-
         let resize = function () {
             let width = this.el.clientWidth;
             let height = this.el.clientHeight;
@@ -152,9 +147,36 @@ export default class ThreeBoard {
         enclosure.receiveShadow = true;
         this.scene.add(enclosure);
 
-        // Setup Board
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        this.scene.add(ambientLight);
 
-        // Grid
+        const pointLight = new THREE.PointLight(0xFFFFFF, 1, 500, 2);
+        pointLight.position.set(...t23([51, 49, 70]));
+        pointLight.castShadow = true;
+        pointLight.shadow.mapSize.width = 512;
+        pointLight.shadow.mapSize.height = 512;
+        pointLight.shadow.camera.near = 60;
+        pointLight.shadow.camera.far = 248;
+        this.scene.add(pointLight);
+    }
+
+    beginRenderLoop() {
+        let loop = function () {
+            this.renderer.render(this.scene, this.camera);
+            requestAnimationFrame(loop);
+        }.bind(this);
+        requestAnimationFrame(loop); // begin
+    }
+
+    setBoard(board) {
+        this.board = board;
+        const [x, y, z] = this.board.dims;
+        const center = this._t2T([(x-1)/2, (y-1)/2, (z-1)/2]);
+
+        this.controls.target.copy(center);
+        this.camera.lookAt(center);
+
         this.grid_grp = new THREE.Group();
         for (let i = 0; i < x; ++i) {
             for (let j = 0; j < y; ++j) {
@@ -213,27 +235,17 @@ export default class ThreeBoard {
         }
         this.scene.add(this.cube_grp);
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        this.scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0xFFFFFF, 1, 500, 2);
-        pointLight.position.set(...t23([51, 49, 70]));
-        pointLight.castShadow = true;
-        pointLight.shadow.mapSize.width = 512;
-        pointLight.shadow.mapSize.height = 512;
-        pointLight.shadow.camera.near = 60;
-        pointLight.shadow.camera.far = 248;
-        this.scene.add(pointLight);
+        this.fade_layers(this.fadedLayers);
     }
 
-    beginRenderLoop() {
-        console.log('non-slidable');
-        let loop = function () {
-            this.renderer.render(this.scene, this.camera);
-            requestAnimationFrame(loop);
-        }.bind(this);
-        requestAnimationFrame(loop); // begin
+    clearBoard() {
+        this.scene.remove(this.grid_grp);
+        this.scene.remove(this.cube_grp);
+    }
+
+    totalLayers() {
+        let min = Math.min(...this.board.dims);
+        return ~~((min+1)/2);
     }
 
     separate(factor) {
@@ -271,6 +283,7 @@ export default class ThreeBoard {
                 }
             }
         }
+        this.fadedLayers = layers;
     }
 
     fade_others(coord, fade_immovable=true, opacity=0.1) {

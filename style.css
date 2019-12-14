@@ -15,9 +15,26 @@ h2 {
     /*font: small-caps 1.1rem/1 Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", sans-serif;*/
     font: small-caps bold 1.2rem/1 "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
     letter-spacing: 0.02em;
+    margin-bottom: 0.6rem;
 }
 h2::first-letter {
     letter-spacing: 0.05em;
+}
+button {
+    padding: 0.5rem;
+    background: #f2f2f2;
+    border: 1px solid #aaa;
+    outline: none;
+}
+button:hover {
+    border-color: #ff6961;
+    cursor: pointer;
+}
+button:active {
+    background: #ffb2ae;
+}
+input {
+    vertical-align: middle;
 }
 #puzzle {
     position:absolute;
@@ -54,12 +71,9 @@ h2::first-letter {
     padding: 0.6rem 0 0.6rem 0;
     text-align: center;
 }
-.oversize #controls {
+body.oversize #controls {
     border-right: none;
     width: 100%;
-}
-#controls h2 {
-    margin-bottom: 0.6rem;
 }
 #controls_inner {
     display: inline-block;
@@ -77,17 +91,41 @@ h2::first-letter {
 #controls .sliders .slider {
     margin-bottom: 0.6em;
 }
-#controls .sliders label {
-    margin-right: 0.3rem;
-}
 #controls .sliders .slider:last-child {
     margin: 0;
 }
-#controls input {
-    vertical-align: middle;
+#controls .sliders label {
+    margin-right: 0.3rem;
 }
-#controls button {
-    padding: 0.5rem;
-    background: #f2f2f2;
-    border: 1px solid #aaa;
+#shade {
+    transition: all 0.3s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.98);
+    visibility: hidden;
+}
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    max-width: 480px;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    overflow-y: scroll;
+    z-index: 101;
+    visibility: hidden;
+}
+body.shade #shade {
+    visibility: visible;
+}
+body.congrats #congrats_mod {
+    visibility: visible;
+}
+body.generate #generate_mod {
+    visibility: visible;
 }

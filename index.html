@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>3D Sliding Puzzle</title>
+		<title>Box Puzzle 3D</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
 		<script type="module" src="src/main.js" defer></script>
 		<script type="module" src="src/tests.js" defer></script>
 	</head>
-	<body id="block_puzzle_3d">
+	<body id="box_pusher_3d" class="shade generate">
 		<div id="puzzle" class="threeScene">
 			<h2>Puzzle</h2>
 		</div>
@@ -20,12 +20,12 @@
 			<h2>Goal</h2>
 		</div>
 		<div id="controls">
+			<h2>Controls</h2>
 			<div id="controls_inner">
-				<h2>Controls</h2>
 				<div class="sliders">
 					<div class="slider">
 						<label for="separation">Separation</label>
-						<input type="range" id="separation" min="1" max="8" step="0.1" value="1">
+						<input type="range" id="separation" min="1" max="3" step="0.05" value="1">
 					</div>
 					<div class="slider">
 						<label for="fade_layers">Fade Layers</label>
@@ -33,7 +33,31 @@
 					</div>
 				</div>
 				<button type="button" id="undo">Undo</button>
-				<button type="button" id="solve">Solve</button>
+				<button type="button" id="restart">Restart</button>
+			</div>
+		</div>
+		<div id="shade">
+			<div id="congrats_mod" class="modal">
+				<h2>Congratulations</h2>
+				<p>You solved it!</p>
+			</div>
+			<div id="generate_mod" class="modal">
+				<h2>Generate Puzzle</h2>
+
+				<label for="puzzle_name">Name</label>
+				<input type="text" id="puzzle_name" required>
+
+				<label>Dimensions</label>
+				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required> x
+				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required> x
+				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required>
+
+				<label for="difficulty">Difficulty</label>
+				<input type="text" id="difficulty" minlength="1" maxlength="3" size="3" required>
+
+				<button id="generate">
+					Generate
+				</button>
 			</div>
 		</div>
 		<script>
