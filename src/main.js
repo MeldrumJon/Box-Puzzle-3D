@@ -42,18 +42,35 @@ function main() {
     
     const elCongratsBtn = document.getElementById('congrats_btn');
 
+    let setControlsSize = function () {
+    	if (elControlsInner.clientWidth > (window.innerWidth/2+1)) {
+            elBody.classList.add('oversize');
+            elPuzzle.style.bottom = elControls.clientHeight + 'px';
+            elSolution.style.bottom = elControls.clientHeight + 'px';
+    	}
+    	else {
+            elBody.classList.remove('oversize');
+            elPuzzle.style.bottom = 0;
+            elSolution.style.bottom = 0;
+    	}
+    }
+    window.addEventListener('resize', setControlsSize, {passive: true});
+    window.addEventListener('orientationchange', setControlsSize, {passive: true});
+    setControlsSize(); // needs to happen before passing the elements to Threejs
+
     const threePuzzle = new ThreeSlidableBoard(elPuzzle);
     const threeSolution = new ThreeBoard(elSolution);
-
-    function showShade(shadeName) {
-        elBody.classList.add('shade');
-        elBody.classList.add('generate');
-    }
 
     function hideShade() {
         elBody.classList.remove('shade');
         elBody.classList.remove('generate');
         elBody.classList.remove('congrats');
+    }
+
+    function showShade(shadeName) {
+        hideShade();
+        elBody.classList.add('shade');
+        elBody.classList.add(shadeName);
     }
 
     // Generate
@@ -160,21 +177,6 @@ function main() {
     });
 
     // Gameplay
-    let setControlsSize = function () {
-    	if (elControlsInner.clientWidth > (window.innerWidth/2+1)) {
-            elBody.classList.add('oversize');
-            elPuzzle.style.bottom = elControls.clientHeight + 'px';
-            elSolution.style.bottom = elControls.clientHeight + 'px';
-    	}
-    	else {
-            elBody.classList.remove('oversize');
-            elPuzzle.style.bottom = 0;
-            elSolution.style.bottom = 0;
-    	}
-    }
-    window.addEventListener('resize', setControlsSize, {passive: true});
-    window.addEventListener('orientationchange', setControlsSize, {passive: true});
-    setControlsSize();
 
     elFadeLayers.addEventListener('input', () => {
         let value = elFadeLayers.value;
