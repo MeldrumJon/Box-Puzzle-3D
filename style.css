@@ -174,7 +174,7 @@ body.oversize #controls {
     text-align: left;
 }
 #dimensions {
-    padding-right: 0.6em;
+    margin-right: 2.4em;
 }
 p.solved_msg {
     text-align: center;
