@@ -32,19 +32,24 @@
 						<input type="range" id="fade_layers" min="0" max="4" step="1" value="0">
 					</div>
 				</div>
-				<button type="button" id="undo">Undo</button>
-				<button type="button" id="restart">Restart</button>
+				<div class="control_btns">
+					<button type="button" id="undo">Undo</button>
+					<button type="button" id="restart">Restart</button>
+				</div>
 			</div>
 		</div>
 		<div id="shade">
 			<div id="congrats_mod" class="modal">
+				<div class="modal_inside">
 				<h2>Congratulations</h2>
 				<p class="solved_msg">You solved it!</p>
 				<div class="form_btns">
 					<button type="button" id="congrats_btn">Play Again</button>
 				</div>
+				</div>
 			</div>
 			<div id="generate_mod" class="modal">
+				<div class="modal_inside">
 				<h2>Generate Puzzle</h2>
 					<fieldset>
 						<div class="flexrow">
@@ -66,6 +71,7 @@
 					<div class="form_btns">
 						<button type="button" id="generate">Generate</button>
 					</div>
+				</div>
 			</div>
 		</div>
 	</body>

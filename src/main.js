@@ -45,10 +45,21 @@ function main() {
     const threePuzzle = new ThreeSlidableBoard(elPuzzle);
     const threeSolution = new ThreeBoard(elSolution);
 
+    function showShade(shadeName) {
+        elBody.classList.add('shade');
+        elBody.classList.add('generate');
+    }
+
+    function hideShade() {
+        elBody.classList.remove('shade');
+        elBody.classList.remove('generate');
+        elBody.classList.remove('congrats');
+    }
+
     // Generate
     let init = function() {
         elPuzzleName.value = 'Puzzle ' + ~~(Math.random() * 999999);
-        elBody.className = 'shade generate'; // Start with generate window
+        showShade('generate');
     }
     init();
 
@@ -144,7 +155,7 @@ function main() {
             let layers = threePuzzle.totalLayers();
             elFadeLayers.setAttribute('max', layers);
 
-            elBody.className = 'game';
+            hideShade();
         }
     });
 
@@ -162,6 +173,7 @@ function main() {
     	}
     }
     window.addEventListener('resize', setControlsSize, {passive: true});
+    window.addEventListener('orientationchange', setControlsSize, {passive: true});
     setControlsSize();
 
     elFadeLayers.addEventListener('input', () => {
@@ -180,7 +192,7 @@ function main() {
     threePuzzle.setMoveCallback(function onMove() {
         if (!board || !solution) { return; }
         if (board.equals(solution)) {
-            elBody.className = 'shade congrats'
+            showShade('congrats');
         }
     });
     

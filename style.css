@@ -145,6 +145,10 @@ body.oversize #controls {
 #controls .sliders label {
     margin-right: 0.3rem;
 }
+#controls .control_btns {
+    display: inline-block;
+    margin: 0 0.2em;
+}
 #shade {
     transition: all 0.1s;
     position: absolute;
@@ -162,12 +166,15 @@ body.oversize #controls {
     position: absolute;
     top: 50%;
     left: 50%;
-    max-width: 360px;
-    max-height: 100%;
     transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 420px;
+    max-height: 100%;
     z-index: 101;
     opacity: 0;
     visibility: hidden;
+}
+.modal_inside {
     padding: 0.6em;
 }
 #puzzle_name {

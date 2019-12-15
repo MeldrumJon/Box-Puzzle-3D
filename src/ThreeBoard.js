@@ -139,12 +139,14 @@ export default class ThreeBoard {
             this.camera.aspect = width/height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(width, height);
+            this.needsRender = true;
         }.bind(this);
         let resize_id = 0;
         window.addEventListener('resize', function resized() {
             clearTimeout(resize_id);
             resize_id = window.setTimeout(resizeDone, 200);
         }, {passive: true});
+        window.addEventListener('orientationchange', resizeDone);
 
         // Enclosure
         const enclosure = new THREE.Mesh(ENCLOSURE_GEOMETRY, ENCLOSURE_MATERIAL);
