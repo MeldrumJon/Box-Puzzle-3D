@@ -1,5 +1,5 @@
 import * as C from './const.js';
-import * as AMath from './ArrayMath.js';
+import * as AMath from './arrayMath.js';
 import ThreeBoard from './ThreeBoard.js';
 import EventHelper from './EventHelper.js';
 
