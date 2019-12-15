@@ -12,7 +12,7 @@
 		<script type="module" src="src/main.js" defer></script>
 		<script type="module" src="src/tests.js" defer></script>
 	</head>
-	<body id="box_pusher_3d" class="shade generate">
+	<body id="box_pusher_3d" class="shade">
 		<div id="puzzle" class="threeScene">
 			<h2>Puzzle</h2>
 		</div>
@@ -39,49 +39,36 @@
 		<div id="shade">
 			<div id="congrats_mod" class="modal">
 				<h2>Congratulations</h2>
-				<p>You solved it!</p>
+				<p class="solved_msg">You solved it!</p>
+				<div class="form_btns">
+					<button type="button" id="congrats_btn">Generate Another</button>
+				</div>
 			</div>
 			<div id="generate_mod" class="modal">
 				<h2>Generate Puzzle</h2>
+					<fieldset>
+						<div class="flexrow">
+							<label for="puzzle_name">Name:</label>
+							<input type="text" id="puzzle_name" class="grow" required value="Puzzle">
+						</div>
+						<div class="flexrow">
+							<div title="Dimensions (from 1 to 8)" id="dimensions">
+								<input type="text" id="dimx" minlength="1" maxlength="1" size="1" required value="3"> &times; 
+								<input type="text" id="dimy" minlength="1" maxlength="1" size="1" required value="4"> &times; 
+								<input type="text" id="dimz" minlength="1" maxlength="1" size="1" required value="5">
+							</div>
 
-				<label for="puzzle_name">Name</label>
-				<input type="text" id="puzzle_name" required>
-
-				<label>Dimensions</label>
-				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required> x
-				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required> x
-				<input type="text" id="dim1" minlength="1" maxlength="1" size="1" required>
-
-				<label for="difficulty">Difficulty</label>
-				<input type="text" id="difficulty" minlength="1" maxlength="3" size="3" required>
-
-				<button id="generate">
-					Generate
-				</button>
+							<div class="grow right">
+								<label for="difficulty">Difficulty:</label>
+								<input type="text" id="difficulty" minlength="1" maxlength="3" size="3" value="5" required>
+							</div>
+						</div>
+					</fieldset>
+					<div class="form_btns">
+						<button type="button" id="generate">Generate</button>
+					</div>
 			</div>
 		</div>
-		<script>
-			const body = document.getElementById('block_puzzle_3d');
-			const puzzle = document.getElementById('puzzle');
-			const solution = document.getElementById('solution');
-			const controls = document.getElementById('controls');
-			const cont_inner = document.getElementById('controls_inner');
-			let setControlsSize = function () {
-				if (cont_inner.clientWidth > (window.innerWidth/2+1)) {
-					body.classList.add('oversize');
-					console.log(controls.clientHeight);
-					puzzle.style.bottom = controls.clientHeight + 'px';
-					solution.style.bottom = controls.clientHeight + 'px';
-				}
-				else {
-					body.classList.remove('oversize');
-					puzzle.style.bottom = 0;
-					solution.style.bottom = 0;
-				}
-			}
-        	window.addEventListener('resize', setControlsSize, {passive: true});
-        	setControlsSize();
-		</script>
 	</body>
 </html>
 

@@ -23,11 +23,7 @@ const CUBE_GEOMETRY = new THREE.BoxBufferGeometry(
 );
 const CUBE_MATERIALS = new Array(C.CUBE_COLORS.length);
 CUBE_MATERIALS[0] = new THREE.MeshLambertMaterial({ // Immovable
-    //map: loader.load('textures/trak2_crete1d.png'),
     color: C.CUBE_COLORS[0],
-    //emissive: 0x000000,
-    //specular: 0xffffff,
-    //shininess: 5
 });
 for (let i = 1, len = CUBE_MATERIALS.length; i < len; ++i) {
     CUBE_MATERIALS[i] = new THREE.MeshLambertMaterial({ // Movable
@@ -132,14 +128,23 @@ export default class ThreeBoard {
         this.controls.maxDistance = 100;
         this.controls.minDistance = 4;
 
-        let resize = function () {
+        let orbitUpdate = function() {
+            this.needsRender = true;
+        }.bind(this);
+        this.controls.addEventListener('change', orbitUpdate);
+
+        let resizeDone = function () {
             let width = this.el.clientWidth;
             let height = this.el.clientHeight;
             this.camera.aspect = width/height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(width, height);
         }.bind(this);
-        window.addEventListener('resize', resize, {passive: true});
+        let resize_id = 0;
+        window.addEventListener('resize', function resized() {
+            clearTimeout(resize_id);
+            resize_id = window.setTimeout(resizeDone, 200);
+        }, {passive: true});
 
         // Enclosure
         const enclosure = new THREE.Mesh(ENCLOSURE_GEOMETRY, ENCLOSURE_MATERIAL);
@@ -159,11 +164,16 @@ export default class ThreeBoard {
         pointLight.shadow.camera.near = 60;
         pointLight.shadow.camera.far = 248;
         this.scene.add(pointLight);
+
+        this.needsRender = true;
     }
 
     beginRenderLoop() {
         let loop = function () {
-            this.renderer.render(this.scene, this.camera);
+            if (this.needsRender) {
+                this.renderer.render(this.scene, this.camera);
+                this.needsRender = false;
+            }
             requestAnimationFrame(loop);
         }.bind(this);
         requestAnimationFrame(loop); // begin
@@ -236,11 +246,14 @@ export default class ThreeBoard {
         this.scene.add(this.cube_grp);
 
         this.fade_layers(this.fadedLayers);
+
+        this.needsRender = true;
     }
 
     clearBoard() {
         this.scene.remove(this.grid_grp);
         this.scene.remove(this.cube_grp);
+        this.needsRender = true;
     }
 
     totalLayers() {
@@ -261,6 +274,7 @@ export default class ThreeBoard {
                 cubes[i].position.copy(this._b2T(cubes[i].board_coord));
             }
         }
+        this.needsRender = true;
     }
 
     fade_layers(layers, fade_immovable=true, opacity=0.1) {
@@ -284,6 +298,7 @@ export default class ThreeBoard {
             }
         }
         this.fadedLayers = layers;
+        this.needsRender = true;
     }
 
     fade_others(coord, fade_immovable=true, opacity=0.1) {
@@ -300,6 +315,7 @@ export default class ThreeBoard {
                 cubes[i].material.opacity = opacity;
             }
         }
+        this.needsRender = true;
     }
 
     fade_none() {
@@ -309,6 +325,6 @@ export default class ThreeBoard {
             cubes[i].material.transparent = false;
             cubes[i].material.opacity = 1;
         }
-
+        this.needsRender = true;
     }
 }

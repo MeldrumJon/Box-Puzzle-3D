@@ -10,6 +10,22 @@ export class ArrayND {
             this.a.fill(fill);
         }
     }
+    
+    equals(and) {
+        if (this.dims.length !== and.dims.length) {
+            return false;
+        }
+        for (let i = 0, len = this.dims.length; i < len; ++i) {
+            if (this.dims[i] !== and.dims[i]) { return false; }
+        }
+        if (this.a.length !== and.a.length) {
+            return false;
+        }
+        for (let i = 0, len = this.a.length; i < len; ++i) {
+            if (this.a[i] !== and.a[i]) { return false; }
+        }
+        return true;
+    }
 
     _valid(c) {
         const len = c.length;

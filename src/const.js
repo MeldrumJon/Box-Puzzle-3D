@@ -1,5 +1,5 @@
 export const TOTAL_CUBES = 7;
-export const MAX_BOARD_LEN = 64; // 64
+export const MAX_BOARD_LEN = 512; // 64
 
 export const PROBABILITIES = [10, 5, 5, 5, 5, 5, 5, 60];
 

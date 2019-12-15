@@ -4,18 +4,6 @@ import ThreeBoard from './ThreeBoard.js';
 import EventHelper from './EventHelper.js';
 
 const loader = new THREE.TextureLoader();
-const SELECTOR_GEOMETRY = //new THREE.EdgesGeometry(
-    new THREE.BoxBufferGeometry(
-        C.CUBE_SIZE, C.CUBE_SIZE, C.CUBE_SIZE
-    );
-//);
-const SELECTOR_MATERIAL = new THREE.MeshBasicMaterial({
-    map: loader.load('textures/select.png'), // Relative to index.html
-    transparent: true,
-    opacity: 1,
-    side: THREE.DoubleSide
-});
-
 const SIDE_SPACE = -0.01;
 const SIDE_GEOMETRY = new THREE.PlaneBufferGeometry(
         C.CUBE_SIZE-SIDE_SPACE, C.CUBE_SIZE-SIDE_SPACE
@@ -23,13 +11,12 @@ const SIDE_GEOMETRY = new THREE.PlaneBufferGeometry(
 SIDE_GEOMETRY.applyMatrix(
         new THREE.Matrix4().makeTranslation(0, 0, -C.CUBE_SIZE/2+SIDE_SPACE)
 );
-// Relative to index.html
 const SIDE_HOVER_MAP = loader.load('textures/side_select.png');
-const SIDE_SELECTOR_MAP = loader.load('textures/select.png');
+const SIDE_SELECTOR_MAP = loader.load('textures/select.png'); // relative to index.html
 const SIDE_MATERIAL = new THREE.MeshBasicMaterial({
     map: SIDE_SELECTOR_MAP,
-    transparent: true,
-    opacity: 1,
+    transparent:true,
+    alphaTest: 0.4,
     side: THREE.DoubleSide
 });
 const SIDE_X_FORWARD = new THREE.Mesh(
@@ -73,7 +60,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         );
     }
 
-    _animate(obj3d, position) {
+    _animate(obj3d, position, callback) {
         this.busy = true;
 
         let diff = position.clone().sub(obj3d.position);
@@ -84,10 +71,13 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         let animate = function() {
             if (iterations >= total_steps) {
                 obj3d.position.copy(position);
+                this.needsRender = true;
                 this.busy = false;
+                if (callback) { window.setTimeout(callback); }
             }
             else {
                 obj3d.position.add(step_vector);
+                this.needsRender = true;
                 ++iterations;
                 window.requestAnimationFrame(animate);
             }
@@ -134,6 +124,8 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.hovering = false;
         this.hoveringX = 0;
         this.hoveringY = 0;
+
+        this.moveCallback = null;
     }
 
     beginRenderLoop() {
@@ -152,8 +144,10 @@ export default class ThreeSlidableBoard extends ThreeBoard {
                 }
                 this.hovering = false;
             }
-
-            this.renderer.render(this.scene, this.camera);
+            if (this.needsRender) {
+                this.renderer.render(this.scene, this.camera);
+                this.needsRender = false;
+            }
             requestAnimationFrame(loop);
         }.bind(this);
         requestAnimationFrame(loop); // begin
@@ -168,6 +162,11 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         super.clearBoard();
         this.selector.visible = false;
         this.selected_cube = null;
+        this.needsRender = true;
+    }
+
+    setMoveCallback(callback) {
+        this.moveCallback = callback;
     }
 
     separate(factor) {
@@ -177,9 +176,10 @@ export default class ThreeSlidableBoard extends ThreeBoard {
                     this._b2T(this.selected_cube.board_coord)
             );
         }
+        this.needsRender = true;
     }
 
-    slide(dir) {
+    slide(dir, callback=false) {
         if (!this.selected_cube) { return false; } // Cannot slide nothing
         let oc = this.selected_cube.board_coord;
         let nc = this.board.slide(oc, dir);
@@ -188,7 +188,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.cubes.set(nc, this.selected_cube);
         this.selected_cube.board_coord = nc;
         this._animate(this.selected_cube, this._b2T(nc));
-        this._animate(this.selector, this._b2T(nc));
+        this._animate(this.selector, this._b2T(nc), this.moveCallback);
         this.moves.push({
             start: oc,
             end: nc
@@ -201,7 +201,8 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.selector.position.copy(this._b2T(cube.board_coord));
         this.selector.visible = true;
         this.selected_cube = cube;
-        this.fade_others(cube.board_coord);
+        this.fade_others(cube.board_coord); 
+        this.needsRender = true;
         return true;
     }
 
@@ -209,6 +210,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         this.selector.visible = false;
         this.selected_cube = null;
         this.fade_layers(this.fadedLayers);
+        this.needsRender = true;
         return true;
     }
 
@@ -219,12 +221,14 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         }
         side.material.map = SIDE_HOVER_MAP;
         this.selected_side = side;
+        this.needsRender = true;
     }
 
     deselectSide() {
         if (!this.selected_side) { return; }
         this.selected_side.material.map = SIDE_SELECTOR_MAP;
         this.selected_side = null;
+        this.needsRender = true;
     }
 
     mouse_hover(x, y) {
@@ -237,7 +241,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
         if (this.busy) { return; } // Do nothing while animating
         if (this.selected_cube) {
             if (this.selected_side) {
-                this.slide(this.selected_side.board_dir);
+                this.slide(this.selected_side.board_dir, true);
                 this.deselectSide();
             }
             else {
@@ -260,7 +264,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
             let side = this.raycast_side(x, y);
             if (side) {
                 if (side === this.selected_side) {
-                    this.slide(this.selected_side.board_dir);
+                    this.slide(this.selected_side.board_dir, true);
                     this.deselectSide();
                 }
                 else {
@@ -307,6 +311,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
     }
 
     undo() {
+        this.deselect();
         const len = this.moves.length;
         if (len <= 0) { return; }
         let move = this.moves.pop();
@@ -319,6 +324,7 @@ export default class ThreeSlidableBoard extends ThreeBoard {
 
         cube.board_coord = move.start;
         cube.position.copy(this._b2T(move.start));
+        this.needsRender = true;
     }
 
     restart() {

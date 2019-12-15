@@ -21,6 +21,14 @@ export default class Board extends TypedArrayND {
         return nb;
     }
 
+    equals(b) {
+        let eq = super.equals(b);
+        if (this.hashH !== b.hashH || this.hashL !== b.hashL) {
+            return false;
+        }
+        return eq;
+    }
+
     _rehash() {
         this.hashH = 0;
         this.hashL = 0;
@@ -118,6 +126,20 @@ export default class Board extends TypedArrayND {
     }
 
     /*
+     * A solution can be generated for this board.
+     */
+    solutionable() {
+        let hasEmpty = false;
+        let hasMovable = false;
+        for (let i = 0, len = this.a.length; i < len; ++i) {
+            if (this.a[i] < 0) { hasEmpty = true; }
+            if (this.a[i] > 0) { hasMovable = true; }
+            if (hasEmpty && hasMovable) { return true; }
+        }
+        return false;
+    }
+
+    /*
      * Returns board containing the solution
      */
     solutionize(seed, depth, tries) {
@@ -138,7 +160,7 @@ export default class Board extends TypedArrayND {
                 }
             }
             return -1;
-        } 
+        }
 
         const dirs = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
         const len = this.a.length;
@@ -151,7 +173,8 @@ export default class Board extends TypedArrayND {
         for (let d = 0; d < depth; ++d) {
             let t;
             for (t = 0; t < tries; ++t) {
-                const idx = nearestMovable(sb, rng.rand() % len); // random cube
+                let ran = rng.rand() % len;
+                const idx = nearestMovable(sb, ran); // random cube
                 const dir = dirs[rng.rand() % 3]; // random direction
 
                 const cube = sb.a[idx];

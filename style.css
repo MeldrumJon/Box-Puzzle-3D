@@ -6,35 +6,83 @@ html, body {
     height: 100%;
 }
 body {
-    font: 90%/1 Helvetica Neue,Helvetica,Arial,sans-serif;
+    font: 100%/1 Tahoma, Geneva, sans-serif;
 }
 canvas:focus {
     outline: none;
 }
 h2 {
-    /*font: small-caps 1.1rem/1 Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", sans-serif;*/
-    font: small-caps bold 1.2rem/1 "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
-    letter-spacing: 0.02em;
-    margin-bottom: 0.6rem;
+    font: bold 0.9rem/1 "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.7em;
 }
 h2::first-letter {
     letter-spacing: 0.05em;
 }
 button {
-    padding: 0.5rem;
-    background: #f2f2f2;
-    border: 1px solid #aaa;
+    color: #fff;
+    background: #929191;
+    border-radius: 4px;
+    border: none;
     outline: none;
+    font: bold 0.7rem/1 "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", Helvetica, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    padding: 1.2em;
 }
 button:hover {
-    border-color: #ff6961;
+    background: #ff9682;
     cursor: pointer;
 }
-button:active {
-    background: #ffb2ae;
+button:active{
+    background: #ff6961;
+}
+button:disabled, button:disabled:hover, button:disabled:active {
+    opacity: 0.3;
+    background: #929191;
+    cursor: default;
+}
+fieldset {
+    border:none;
 }
 input {
     vertical-align: middle;
+}
+label {
+    margin-right: 0.6em;
+}
+.form_btns {
+    margin-top: 2.4em;
+    text-align: right;
+}
+input[type=text] {
+    vertical-align: baseline;
+    padding: 0 0.3em;
+    margin: 0.6em 0.1em;
+    font-size: 1em;
+    line-height:1.8;
+    background: #fff;
+    border-radius: 3px;
+    border: 1px solid #eee;
+    box-sizing: border-box;
+    text-align: center;
+}
+input[type=text].invalid {
+    border: 1px solid #f00;
+}
+.flexrow {
+    display:flex;
+    flex-direction: row;
+    flex-flow: row wrap;
+    align-items: center;
+}
+.grow {
+    flex-grow: 1;
+}
+.right {
+    text-align: right;
 }
 #puzzle {
     position:absolute;
@@ -57,7 +105,7 @@ input {
     position: absolute;
     top:0;
     left:0;
-    margin: 0.5rem;
+    margin: 0.6em;
 }
 #controls {
     position: absolute;
@@ -68,7 +116,7 @@ input {
     background: #fff;
     border-right: 1px solid #aaa;
     border-top: 1px solid #aaa;
-    padding: 0.6rem 0 0.6rem 0;
+    padding: 0.6em 0 0.6em 0;
     text-align: center;
 }
 body.oversize #controls {
@@ -77,16 +125,16 @@ body.oversize #controls {
 }
 #controls_inner {
     display: inline-block;
-    padding: 0 0.6rem;
+    padding: 0 0.6em;
 }
 #controls_inner > * {
-    margin: 0 0.2rem;
+    margin: 0 0.2em;
     vertical-align: middle;
 }
 #controls .sliders {
     display: inline-block;
     text-align: right;
-    margin-right: 1.6rem;
+    margin-right: 1.6em;
 }
 #controls .sliders .slider {
     margin-bottom: 0.6em;
@@ -98,34 +146,53 @@ body.oversize #controls {
     margin-right: 0.3rem;
 }
 #shade {
-    transition: all 0.3s;
+    transition: all 0.1s;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(238, 238, 238, 0.99);
     visibility: hidden;
+    opacity: 0;
 }
 .modal {
+    transition: all 0.1s;
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100%;
-    max-width: 480px;
+    max-width: 360px;
     max-height: 100%;
     transform: translate(-50%, -50%);
-    overflow-y: scroll;
     z-index: 101;
+    opacity: 0;
     visibility: hidden;
+    padding: 0.6em;
 }
+#puzzle_name {
+    text-align: left;
+}
+#dimensions {
+    padding-right: 0.6em;
+}
+p.solved_msg {
+    text-align: center;
+    font-weight: bold;
+}
+#congrats_mod .form_btns {
+    text-align: center
+}
+
 body.shade #shade {
     visibility: visible;
+    opacity: 1;
 }
 body.congrats #congrats_mod {
     visibility: visible;
+    opacity: 1;
 }
 body.generate #generate_mod {
     visibility: visible;
+    opacity: 1;
 }
