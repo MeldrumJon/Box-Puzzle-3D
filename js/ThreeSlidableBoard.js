@@ -11,8 +11,8 @@ const SIDE_GEOMETRY = new THREE.PlaneBufferGeometry(
 SIDE_GEOMETRY.applyMatrix(
         new THREE.Matrix4().makeTranslation(0, 0, -C.CUBE_SIZE/2+SIDE_SPACE)
 );
-const SIDE_HOVER_MAP = loader.load('textures/side_select.png');
-const SIDE_SELECTOR_MAP = loader.load('textures/select.png'); // relative to index.html
+const SIDE_HOVER_MAP = loader.load('resources/side_select.png');
+const SIDE_SELECTOR_MAP = loader.load('resources/select.png'); // relative to index.html
 const SIDE_MATERIAL = new THREE.MeshBasicMaterial({
     map: SIDE_SELECTOR_MAP,
     transparent:true,
